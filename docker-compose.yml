@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  web:
+    container_name: web
+    build: ./app
+    ports:
+      - "5000:5000"
+    links:
+      - redis
+    depends_on:
+      - redis
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./app:/app
+
+  redis:
+    container_name: redis
+    image: redis
+    ports: 
+      - "6379:6379"
