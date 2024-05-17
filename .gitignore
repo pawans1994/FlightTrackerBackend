@@ -1,0 +1,5 @@
+venv/
+redis-stable/
+redis-stable.tar.gz
+app/__pycache__/
+app/util/__pyache__/

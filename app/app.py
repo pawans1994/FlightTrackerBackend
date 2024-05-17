@@ -1,9 +1,36 @@
-from util.TrackUtil import get_autocomplete_list, track_one_way  
+from util.TrackUtil import get_autocomplete_list, track_one_way, get_celery_worker_status 
 from util.ApiUtil import get_flight_url, get_headers 
 from tasks import flask_app, celery_app
 from flask import request 
+import threading
+import os
+import signal
 import redis
 import pickle
+import subprocess
+
+beat = None
+beat_thread = None
+should_run = False
+beat_process = None
+
+def start_beat():
+    global beat_process
+    if beat_process and beat_process.poll() is None:
+        print('Beat is already running')
+        return
+    beat_process = subprocess.Popen(['celery', '-A', 'tasks', 'beat', '--loglevel=info'])
+    print('Beat Started')
+
+
+def stop_beat():
+    global beat_process
+    if beat_process and beat_process.poll() is None:
+        beat_process.terminate()
+        beat_process.wait()
+        print('Beat Stopped')
+    else:
+        print('Beat is not running')
 
 @flask_app.route('/getAutoCompleteList', methods=['GET'])
 def get_auto_complete_list():
@@ -24,7 +51,7 @@ def track_flight():
 
 @flask_app.route('/flightNotification', methods=['GET'])
 def get_flight_notification():
-
+    global beat_process
     redis_conn = redis.StrictRedis(host='redis', port=6379,db=0)
     flightParams = {
         'fromId': request.args['sourceId'],
@@ -37,14 +64,15 @@ def get_flight_notification():
         'locale': 'en-US'
     }
     trip_type = request.args['tripType']
-    # trip_type = request.args['threshold_price']
-
     redis_conn.set('flight_params', pickle.dumps(flightParams))
     redis_conn.set('trip_type', trip_type)
     redis_conn.set('threshold_price', '200')
-    celery_app.Beat(loglevel='info').run()
+    if beat_process and beat_process.poll() is None:
+        stop_beat()
+    else:
+        start_beat()
 
-    return 200, ''
+    return ''
 
 if __name__ == "__main__":
     flask_app.run(debug=True, host="0.0.0.0", port=5000)

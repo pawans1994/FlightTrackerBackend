@@ -10,18 +10,23 @@ def get_autocomplete_list(url, headers, params):
     resp = call_get_api(url, autoCompleteparams, headers)
     return resp.json()
 
-def track_one_way(url, headers, params):
-    flightParams = {
-        'fromId': params['sourceId'],
-        'toId': params['destinationId'],
-        'departDate': params['departureDate'],
-        'returnDate': params['returnDate'],
-        'adults': '1',
-        'currency': 'USD',
-        'market': 'US',
-        'locale': 'en-US'
-    }
+def track_one_way(url, headers, params, flight_params = None):
+    if flight_params:
+        flightParams = flight_params
+    else:
+        flightParams = {
+            'fromId': params['sourceId'],
+            'toId': params['destinationId'],
+            'departDate': params['departureDate'],
+            'returnDate': params['returnDate'],
+            'adults': '1',
+            'currency': 'USD',
+            'market': 'US',
+            'locale': 'en-US'
+        }
+
     resp = call_get_api(url, flightParams, headers)
+    print('RR:', resp.json())
     return resp.json()
 
 
@@ -56,3 +61,19 @@ def extract_flight_data(api_response):
         return_leg = []
 
     return itinerary_data
+
+def get_celery_worker_status(app):
+    i = app.control.inspect()
+    availability = i.ping()
+    stats = i.stats()
+    registered_tasks = i.registered()
+    active_tasks = i.active()
+    scheduled_tasks = i.scheduled()
+    result = {
+        'availability': availability,
+        'stats': stats,
+        'registered_tasks': registered_tasks,
+        'active_tasks': active_tasks,
+        'scheduled_tasks': scheduled_tasks
+    }
+    return result

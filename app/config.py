@@ -1,7 +1,7 @@
 from celery import Celery, Task
 from flask import Flask
 from flask_cors import CORS
-from datetime import timedelta
+import logging
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -14,7 +14,7 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.config_from_object(app.config["CELERY"])
 
     celery_app.conf.update(
-        result_expires = 3600,
+        result_expires=3600,
         timezone='UTC',
         beat_schedule={
             'getResult': {
@@ -25,6 +25,17 @@ def celery_init_app(app: Flask) -> Celery:
     )
     celery_app.set_default()
     app.extensions["celery"] = celery_app
+
+    # Set up logging
+    logger = logging.getLogger('celery')
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    
     return celery_app
 
 def create_app() -> Flask:
