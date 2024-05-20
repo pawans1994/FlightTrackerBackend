@@ -1,3 +1,4 @@
+import json
 from .ApiUtil import call_get_api
 
 def get_autocomplete_list(url, headers, params):
@@ -31,11 +32,13 @@ def track_one_way(url, headers, params, flight_params = None):
 
 
 def extract_flight_data(api_response):
+    # resp = json.dumps(api_response)
     itinerary_data = []
-    for itinerary in api_response['itineraries']:
+    for itinerary in api_response["data"]["itineraries"]:
         outward_leg = []
         return_leg = []
-        for i, leg in enumerate(itinerary['legs']):
+        i = 0
+        for leg in itinerary['legs']:
             segment_data = []
             for segment in leg['segments']:
                 flight = {
@@ -44,22 +47,21 @@ def extract_flight_data(api_response):
                     'departureTime': segment['departure'],
                     'arrivalTime': segment['arrival'],
                     'price': itinerary['price']['formatted'],
-                    'carrierName': segment['operatingCarrier']['name']
+                    'carrierName': segment['operatingCarrier']['name'],
                 }
                 segment_data.append(flight)
+            
             if i == 0:
                 outward_leg.extend(segment_data)
+                i += 1
             else:
                 return_leg.extend(segment_data)
-            print(outward_leg, return_leg)
-
+        
         itinerary_data.append({
-            'outwardLeg': outward_leg[:],
-            'returnLeg': return_leg[:]
+            'outwardLeg': outward_leg,
+            'returnLeg': return_leg
         })
-        outward_leg = []
-        return_leg = []
-
+    
     return itinerary_data
 
 def get_celery_worker_status(app):

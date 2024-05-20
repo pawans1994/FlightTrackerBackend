@@ -63,10 +63,11 @@ def get_flight_notification():
         'market': 'US',
         'locale': 'en-US'
     }
+    threshold = request.args['threshold']
     trip_type = request.args['tripType']
     redis_conn.set('flight_params', pickle.dumps(flightParams))
     redis_conn.set('trip_type', trip_type)
-    redis_conn.set('threshold_price', '200')
+    redis_conn.set('threshold_price', threshold)
     if beat_process and beat_process.poll() is None:
         stop_beat()
     else:
