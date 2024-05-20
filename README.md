@@ -1,7 +1,3 @@
-Here's a `README.md` for your backend project:
-
----
-
 # FlightTrackerBackend
 
 This is the backend application for tracking flight prices. It handles user inputs through a REST API, tracks flight prices, and sends email notifications when prices fall below a user-defined threshold. The backend uses Flask, Celery, and Redis, and is fully dockerized.
@@ -115,7 +111,3 @@ For questions or support, contact:
 
 - **Pawandeep Singh Mendiratta**
 - **Email**: pawan.p.121@gmail.com
-
----
-
-Feel free to adjust any details or add additional sections as needed.
