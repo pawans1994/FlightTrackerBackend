@@ -2,6 +2,8 @@ from celery import Celery, Task
 from flask import Flask
 from flask_cors import CORS
 import logging
+from dotenv import load_dotenv
+import os
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -39,12 +41,13 @@ def celery_init_app(app: Flask) -> Celery:
     return celery_app
 
 def create_app() -> Flask:
+    load_dotenv()
     app = Flask(__name__)
     CORS(app)
     app.config.from_mapping(
         CELERY=dict(
-            broker_url="redis://redis:6379/0",
-            result_backend="redis://redis:6379/0",
+            broker_url=os.getenv('CELERY_BROKER_URL'),
+            result_backend=os.getenv('CELERY_BACKEND_URL'),
             task_ignore_result=True,
         ),
     )
