@@ -1,4 +1,6 @@
+import os
 import requests
+from dotenv import load_dotenv
 
 def call_get_api(url, params, headers):
     try:
@@ -12,13 +14,11 @@ def call_get_api(url, params, headers):
 
 
 def get_flight_url(tripType):
-    url = ''
+    load_dotenv()
     if (tripType == 'oneway'):
-        url = 'https://skyscanner80.p.rapidapi.com/api/v1/flights/search-one-way'
+        return os.getenv('ONE_WAY_API')
     else:
-        url = 'https://skyscanner80.p.rapidapi.com/api/v1/flights/search-roundtrip'
-    
-    return url
+        return os.getenv('RETURN_API')
 
 def get_headers():
     headers = {

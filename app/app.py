@@ -2,7 +2,7 @@ from util.TrackUtil import get_autocomplete_list, track_one_way, get_celery_work
 from util.ApiUtil import get_flight_url, get_headers 
 from tasks import flask_app, celery_app
 from flask import request 
-import threading
+from dotenv import load_dotenv 
 import os
 import signal
 import redis
@@ -34,7 +34,8 @@ def stop_beat():
 
 @flask_app.route('/getAutoCompleteList', methods=['GET'])
 def get_auto_complete_list():
-    url = 'https://skyscanner80.p.rapidapi.com/api/v1/flights/auto-complete'
+    load_dotenv()
+    url = os.getenv('AUTO_COMPLETE_API')
     resp = get_autocomplete_list(url ,get_headers(), request.args)
     return resp
 

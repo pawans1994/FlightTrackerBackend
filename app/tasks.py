@@ -3,6 +3,7 @@ from celery import shared_task
 from util.TrackUtil import track_one_way, extract_flight_data
 from util.ApiUtil import get_flight_url, get_headers
 from util.EmailUtil import send_mail
+from util.response import resp
 import redis
 import pickle
 
@@ -30,7 +31,7 @@ def getResults() -> int:
         flightParams['returnDate'] = result['returnDate']
     url = get_flight_url(trip_type)
     threshold = redis_conn.get('threshold_price').decode('utf-8')
-    resp = track_one_way(url, get_headers(), result, flight_params=flightParams)
+    # resp = track_one_way(url, get_headers(), result, flight_params=flightParams)
     response = extract_flight_data(resp)
     for r in response:
         price = r['outwardLeg'][0]['price'][1:]

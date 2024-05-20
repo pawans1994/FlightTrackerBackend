@@ -1,18 +1,18 @@
 import smtplib
 from email.mime.text import MIMEText
+import os
+from dotenv import load_dotenv
 
 # Here I am using yahoo mail server
 
-YAHOO_ACCOUNT= '#USERNAME' # Sender Username
-YAHOO_PASS='#PASSWORD'    # App password generated for mail server
-
 def send_mail(fromAddr, toAddrs, subject, body):
+    load_dotenv()
     msg = MIMEText(body)
     msg['From'] = fromAddr
     msg['To'] = ', '.join(toAddrs)
     msg['Subject'] = subject
-    s = smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465)
+    s = smtplib.SMTP_SSL(os.getenv('MAIL_SERVER'), os.getenv('MAIL_PORT'))
     s.ehlo()
-    s.login(YAHOO_ACCOUNT, YAHOO_PASS)
+    s.login(os.getenv('MAIL_USERNAME'), os.getenv('MAIL_PASSWORD'))
     s.sendmail(fromAddr, toAddrs, msg.as_string())
     s.quit()
